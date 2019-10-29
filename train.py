@@ -80,6 +80,7 @@ class Worker:
             #if imitation=True the rollout is assumed to have different dimensions:
             #[o[0],o[1],optimal_actions]
             rnn_state = self.local_AC.state_init
+            print('rollout', rollout.shape)
             feed_dict={global_step:episode_count,
                        self.local_AC.inputs:np.stack(rollout[:,0]),
                        self.local_AC.goal_pos:np.stack(rollout[:,1]),
@@ -239,7 +240,7 @@ class Worker:
                         except NoSolutionError:
                             print("nosol????",episode_count,start_positions)
                     self.synchronize()
-                    if rollouts[self.metaAgentID] is not None:
+                    if rollouts[self.metaAgentID] is not None and len(rollouts) == 2:
                         i_l=self.train(rollouts[self.metaAgentID][self.agentID-1], sess, gamma, None,imitation=True)
                         episode_count+=1./num_workers
                         if self.agentID==1:
@@ -433,7 +434,7 @@ gamma                  = .95 # discount rate for advantage estimation and reward
 EXPERIENCE_BUFFER_SIZE = 128
 GRID_SIZE              = 10 #the size of the FOV grid to apply to each agent
 ENVIRONMENT_SIZE       = (5,5)#the total size of the environment (length of one side)
-OBSTACLE_DENSITY       = (0,.001) #range of densities
+OBSTACLE_DENSITY       = (0,0.000001) #range of densities
 DIAG_MVMT              = False # Diagonal movements allowed?
 a_size                 = 5 + int(DIAG_MVMT)*4
 SUMMARY_WINDOW         = 10
@@ -457,7 +458,7 @@ DEMONSTRATION_PROB     = 0.5  # probability of training on a demonstration per e
 
 # Simulation options
 FULL_HELP              = False
-OUTPUT_GIFS            = False
+OUTPUT_GIFS            = True
 SAVE_EPISODE_BUFFER    = False
 
 # Testing
