@@ -8,7 +8,7 @@ from matplotlib.colors import hsv_to_rgb
 import random
 import math
 import copy
-from od_mstar3 import cpp_mstar
+import cpp_mstar
 from od_mstar3.col_set_addition import NoSolutionError, OutOfTimeError
 # from gym.envs.classic_control import rendering        
 
