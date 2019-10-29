@@ -232,6 +232,7 @@ class Worker:
                         start_positions=tuple(self.env.getPositions())
                         goals=tuple(self.env.getGoals())
                         try:
+                            """TODO: CBS instead of mstar"""
                             mstar_path=cpp_mstar.find_path(world,start_positions,goals,2,5)
                             rollouts[self.metaAgentID]=self.parse_path(mstar_path)
                         except OutOfTimeError:
@@ -432,7 +433,7 @@ EPISODE_START          = episode_count
 gamma                  = .95 # discount rate for advantage estimation and reward discounting
 #moved network parameters to ACNet.py
 EXPERIENCE_BUFFER_SIZE = 128
-GRID_SIZE              = 10 #the size of the FOV grid to apply to each agent
+GRID_SIZE              = 5 #the size of the FOV grid to apply to each agent
 ENVIRONMENT_SIZE       = (5,5)#the total size of the environment (length of one side)
 OBSTACLE_DENSITY       = (0,0.000001) #range of densities
 DIAG_MVMT              = False # Diagonal movements allowed?
