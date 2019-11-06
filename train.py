@@ -426,20 +426,20 @@ class Worker:
 
 
 # Learning parameters
-max_episode_length     = 256
+max_episode_length     = 32
 episode_count          = 0
 EPISODE_START          = episode_count
 gamma                  = .95 # discount rate for advantage estimation and reward discounting
 #moved network parameters to ACNet.py
-EXPERIENCE_BUFFER_SIZE = 128
+EXPERIENCE_BUFFER_SIZE = 16
 GRID_SIZE              = 10 #the size of the FOV grid to apply to each agent
-ENVIRONMENT_SIZE       = (5,5)#the total size of the environment (length of one side)
+ENVIRONMENT_SIZE       = (3,3)#the total size of the environment (length of one side)
 OBSTACLE_DENSITY       = (0,0.000001) #range of densities
 DIAG_MVMT              = False # Diagonal movements allowed?
 a_size                 = 5 + int(DIAG_MVMT)*4
 SUMMARY_WINDOW         = 10
-NUM_META_AGENTS        = 3
-NUM_THREADS            = 1 #int(multiprocessing.cpu_count() / (2 * NUM_META_AGENTS))
+NUM_META_AGENTS        = 1
+NUM_THREADS            = 3 #int(multiprocessing.cpu_count() / (2 * NUM_META_AGENTS))
 NUM_BUFFERS            = 1 # NO EXPERIENCE REPLAY int(NUM_THREADS / 2)
 EPISODE_SAMPLES        = EXPERIENCE_BUFFER_SIZE # 64
 LR_Q                   = 2.e-5 #8.e-5 / NUM_THREADS # default: 1e-5
