@@ -6,6 +6,8 @@ import os
 import mapf_gym_cap as mapf_gym
 import time
 from od_mstar3.col_set_addition import OutOfTimeError,NoSolutionError
+import cbs
+
 
 results_path="primal_results"
 environment_path="saved_environments"
@@ -46,6 +48,8 @@ class PRIMAL(object):
         goal_pos=[]
         for agent in range(1,self.num_agents+1):
             o=self.env._observe(agent)
+            # print(o)
+            # input()
             inputs.append(o[0])
             goal_pos.append(o[1])
         #compute up to LSTM in parallel
@@ -69,8 +73,11 @@ class PRIMAL(object):
                                          feed_dict={self.network.rnn_out:rnn_out})
         policy_vec=policy_vec[0]
         for agent in range(1,self.num_agents+1):
+            #print(policy_vec[agent-1])
             action=np.argmax(policy_vec[agent-1])
+            #print(agent, action)
             self.env._step((agent,action))
+        input()
           
     def find_path(self,max_step=256):
         '''run a full environment to completion, or until max_step steps'''
@@ -96,15 +103,15 @@ def make_name(n,s,d,id,extension,dirname,extra=""):
     else:
         return dirname+'/'+"{}_agents_{}_size_{}_density_id_{}_{}{}".format(n,s,d,id,extra,extension)
     
-def run_simulations(next,primal):
+def run_simulations(primal):
     #txt file: planning time, crash, nsteps, finished
-    (n,s,d,id) = next
-    environment_data_filename=make_name(n,s,d,id,".npy",environment_path,extra="environment")
+    environment_data_filename="environments/6.npy" #make_name(n,s,d,id,".npy",environment_path,extra="environment")
     world=np.load(environment_data_filename)
-    gym=mapf_gym.MAPFEnv(num_agents=n, world0=world[0],goals0=world[1])
+    n = world[2]
+    gym=mapf_gym.MAPFEnv(num_agents=n, observation_size = 10, world0=world[0],goals0=world[1])
     primal.set_env(gym)
-    solution_filename=make_name(n,s,d,id,".npy",results_path,extra="solution")
-    txt_filename=make_name(n,s,d,id,".txt",results_path)
+    solution_filename="primal_results/sol.npy"
+    txt_filename="primal_results/sol.txt"
     world=gym.getObstacleMap()
     start_positions=tuple(gym.getPositions())
     goals=tuple(gym.getGoals())
@@ -113,7 +120,7 @@ def run_simulations(next,primal):
     start_time=time.time()
     try:
         #print('Starting test ({},{},{},{})'.format(n,s,d,id))
-        path=primal.find_path(256 + 128*int(s>=80) + 128*int(s>=160))
+        path=primal.find_path()
         results['finished']=True
         results['time']=time.time()-start_time
         results['length']=len(path)
@@ -130,18 +137,7 @@ if __name__ == "__main__":
 #    import sys
 #    num_agents = int(sys.argv[1])
 
-    primal=PRIMAL('model_primal',10)
-    num_agents = 2
-
-    while num_agents < 1024:
-        num_agents *= 2
-
-        print("Starting tests for %d agents" % num_agents)
-        for size in [10,20,40,80,160]:
-            if size==10 and num_agents>32:continue
-            if size==20 and num_agents>128:continue
-            if size==40 and num_agents>512:continue
-            for density in [0,.1,.2,.3]:
-                for iter in range(100):
-                    run_simulations((num_agents,size,density,iter),primal)
+    #primal=cbs.GREEDY_SEARCH_WITH_CONSTRAINTS('model_primal',10)
+    primal = cbs.GREEDY_SEARCH_WITH_CONSTRAINTS('model_primal', 10, {1: [((2,0), 1)]})
+    run_simulations(primal)
 print("finished all tests!")
